@@ -11,8 +11,8 @@ tasks:
 
   app-a:
     cmds:
-      - python apps/app_a/app_a.py
+      - python3 apps/app_a/app_a.py
 
   app-b:
     cmds:
-      - python apps/app_b/app_b.py
+      - python3 apps/app_b/app_b.py
