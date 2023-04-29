@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taghive-1-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taghive-1
+  template:
+    metadata:
+      labels:
+        app: taghive-1
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+      containers:
+      - name: taghive-1
+        image: Taghive-1
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+        ports:
+        - containerPort: 5000
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      imagePullSecrets:
+      - name: registry-credentials
+      env:
+      - name: API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: api-key-secret
+            key: api-key-value
+      volumeMounts:
+      - name: data-volume
+        mountPath: /app/data
+      volumes:
+      - name: data-volume
+        emptyDir: {}
+

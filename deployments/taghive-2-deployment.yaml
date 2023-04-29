@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taghive-2-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taghive-2
+  template:
+    metadata:
+      labels:
+        app: taghive-2
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+      containers:
+      - name: taghive-2
+        image: Taghive-2
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+        ports:
+        - containerPort: 5001
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5001
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      imagePullSecrets:
+      - name: registry-credentials
+      env:
+      - name: DATABASE_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: database-password-secret
+            key: database-password-value
+      volumeMounts:
+      - name: data-volume
+        mountPath: /app/data
+        volumes:
+        - name: data-volume
+          emptyDir: {}
+
