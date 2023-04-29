@@ -1,18 +1,21 @@
----
-
 version: '3'
 
 output: prefixed
 
 tasks:
-
-  run-app:
-    deps: [app-a, app-b]
-
-  app-a:
+  build:
     cmds:
-      - python3 apps/app_a/app_a.py
+      - docker build -t taghive-1:latest apps/app_a
+      - docker build -t taghive-2:latest apps/app_b
 
-  app-b:
+  scan:
     cmds:
-      - python3 apps/app_b/app_b.py
+      - snyk container test taghive-1:latest
+      - snyk container test taghive-2:latest
+
+  k8s-deploy:
+    deps: [build, scan]
+    cmds:
+      - kubectl apply -f deployments/taghive-1-deployment.yaml
+      - kubectl apply -f deployments/taghive-2-deployment.yaml
+
