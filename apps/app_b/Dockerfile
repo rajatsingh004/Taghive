@@ -1,29 +1,37 @@
-# Start from a Python 3.9 base image
-FROM python:3.9-slim-buster
+# Build stage
+FROM python:3.9 as builder
 
-# Set the working directory to /app
+# Install dependencies
+RUN apt-get update && apt-get install -y sqlite3
+
+# Set the working directory
 WORKDIR /app
 
-# Install necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libssl-dev gcc libffi-dev git && \
-    rm -rf /var/lib/apt/lists/*
+# Copy the requirements file and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install sqlite3
-RUN apt-get update && apt-get install -y sqlite3 && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy the application code and requirements.txt to the container
-COPY app_b.py schema.sql requirements.txt ./
-
-# Install the required Python packages
-RUN pip install --no-cache-dir -r requirements.txt && \
-    rm -rf /root/.cache/pip/*
+# Copy the application code
+COPY app_b.py schema.sql ./
 
 # Create the database schema and insert data
-RUN sqlite3 database.db < schema.sql && \
-    chmod 660 database.db
+RUN sqlite3 database.db < schema.sql
+
+# Deploy stage
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the application code and database from the build stage
+COPY --from=builder /app .
+
+# Set the UID and GID of the nobody user to 65534
+RUN chown -R 65534:65534 /app && \
+    chmod -R 777 /app
+
+# Set the user to nobody
+USER nobody
 
 # Expose port 5001 for the Flask web application
 EXPOSE 5001
