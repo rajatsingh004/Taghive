@@ -1,5 +1,5 @@
 # Build stage
-FROM python:3.9 as builder
+FROM python:3.10.10-slim as builder
 
 # Install dependencies
 RUN apt-get update && apt-get install -y sqlite3
