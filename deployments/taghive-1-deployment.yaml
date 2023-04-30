@@ -12,37 +12,18 @@ spec:
       labels:
         app: taghive-1
     spec:
-      securityContext:
-        runAsNonRoot: true
-        readOnlyRootFilesystem: true
       containers:
       - name: taghive-1
-        image: Taghive-1
-        imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: "0.5"
-            memory: "512Mi"
+        image: taghive-1:latest
         ports:
         - containerPort: 5000
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 5000
-          initialDelaySeconds: 5
-          periodSeconds: 10
-      imagePullSecrets:
-      - name: registry-credentials
-      env:
-      - name: API_KEY
-        valueFrom:
-          secretKeyRef:
-            name: api-key-secret
-            key: api-key-value
-      volumeMounts:
-      - name: data-volume
-        mountPath: /app/data
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+        volumeMounts:
+        - name: app-data
+          mountPath: /app/data
       volumes:
-      - name: data-volume
+      - name: app-data
         emptyDir: {}
 

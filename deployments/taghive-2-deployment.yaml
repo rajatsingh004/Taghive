@@ -12,37 +12,21 @@ spec:
       labels:
         app: taghive-2
     spec:
-      securityContext:
-        runAsNonRoot: true
-        readOnlyRootFilesystem: true
       containers:
       - name: taghive-2
         image: Taghive-2
-        imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: "0.5"
-            memory: "512Mi"
+        env:
+        - name: DB_HOST
+          value: mysql-service
         ports:
         - containerPort: 5001
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 5001
-          initialDelaySeconds: 5
-          periodSeconds: 10
-      imagePullSecrets:
-      - name: registry-credentials
-      env:
-      - name: DATABASE_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: database-password-secret
-            key: database-password-value
-      volumeMounts:
-      - name: data-volume
-        mountPath: /app/data
-        volumes:
-        - name: data-volume
-          emptyDir: {}
+        volumeMounts:
+        - mountPath: /app/data
+          name: app-data
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+      volumes:
+      - name: app-data
+        emptyDir: {}
 
