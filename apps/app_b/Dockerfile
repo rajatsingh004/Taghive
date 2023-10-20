@@ -18,7 +18,7 @@ COPY app_b.py schema.sql ./
 RUN sqlite3 database.db < schema.sql
 
 # Deploy stage
-FROM python:3.9-slim
+FROM python:3.12.0b1-slim
 
 # Set the working directory
 WORKDIR /app
