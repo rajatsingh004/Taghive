@@ -1,5 +1,5 @@
 # Start from a Python 3.9 base image
-FROM python:3.9
+FROM python:3.13.11
 
 # Install sqlite3
 RUN apt-get update && apt-get install -y sqlite3
